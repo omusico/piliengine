@@ -1,0 +1,68 @@
+application: piliengine  ##your-application-name##
+version: dev             
+runtime: python
+api_version: 1
+
+default_expiration: "7d"
+derived_file_type:
+- python_precompiled
+
+handlers:
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+
+
+# ---------- unit test ----------
+# (this block will be deleted after deploy)
+# please run 
+- url: /_pili/test/([a-z][a-z0-9]+)/.*
+  script: pili/test/\1.py
+
+- url: /_pili/test/([a-z][a-z0-9]+)-([a-z0-9]+)/.*
+  script: pili/test/\1_\2.py
+
+- url: /_pili/test/([a-z][a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)/.*
+  script: pili/test/\1_\2_\3.py
+  #login: admin
+# ---------- /unit test ----------
+
+# ---------- pili built-in apps ----------
+- url: /_pili/([a-z]+)/?.*
+  script: pili/apps/\1.py
+  login: admin
+# ---------- /pili built-in apps ----------
+
+# ---------- assets ----------
+- url: /(favicon\.ico|robots\.txt)
+  static_files: static/\1
+  upload: static/.*
+
+- url: /static/(.*)
+  static_files: static/\1
+  upload: static/.*\.[a-z]+
+# ---------- /assets ----------
+
+
+# ---------- route to apps ----------
+# homepage
+- url: /
+  script: apps/home.py
+
+# /welcome/ to apps/welcome.py
+- url: /([a-z][a-z0-9]+)/.*
+  script: apps/\1.py
+
+# /your-path/ to apps/your_path.py
+- url: /([a-z][a-z0-9]+)-([a-z0-9]+)/.*
+  script: apps/\1_\2.py
+
+# /your-second-path/ to apps/your_second_path.py
+- url: /([a-z][a-z0-9]+)-([a-z0-9]+)-([a-z0-9]+)/.*
+  script: apps/\1_\2_\3.py
+
+# ---------- /route to apps ----------
+
+- url: .*
+  script: index.py
+
