@@ -17,7 +17,6 @@ class WebApp(base.Base):
     def a(self):
         self.echo('hihih')
 
-prefix = '/_pili/test/base'
 """
 app = webapp2.WSGIApplication([
     webapp2.Route(r"%s/<:(\w+)>/?" % prefix, webapp, handler_method='_request'),
@@ -27,7 +26,7 @@ app = webapp2.WSGIApplication([
 """
 
 def main():
-    base.simplerun(prefix, WebApp)
+    base.pilirun('/_pili/test/base', WebApp)
     #base.route(r'/test/products', handler='handlers.ProductsHandler:list_products', name='products-list')
 
 if __name__ == "__main__":

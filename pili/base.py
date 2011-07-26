@@ -4,65 +4,6 @@ import types
 import inspect
 
 from pili.ext import webapp2
-#from pili import lite
-
-class create_jinja:
-    """Rendering interface to Jinja2 Templates
-    Example:
-        render= render_jinja('templates')
-        render.hello(name='jinja2')
-    """
-
-    def __init__(self, *a, **kwargs):
-        self._data = {}
-        extensions = kwargs.pop('extensions', [])
-        globals = kwargs.pop('globals', {})
-
-        from jinja2 import Environment,FileSystemLoader
-        from pily.python_loader import PythonLoader
-        self._lookup = Environment(loader=PythonLoader(*a, **kwargs), extensions=extensions)
-        self._lookup.globals.update(globals)
-
-        #now is not available to use byteccode cache
-        #from jinja2.bccache import MemcachedBytecodeCache
-        #from google.appengine.api import memcache
-        #self._render._lookup.bytecode_cache = MemcachedBytecodeCache(memcache, self.config.CACHE_KEY_PREFIX)
-
-        #add useful filters
-        from pily import jinjafilter
-        self._lookup.filters.update({'urlencode':jinjafilter.urlencode})
-
-    def add_filter(filters):
-        self._lookup.filters.update(filters)
-
-    def assign(self, data):
-        self._data.update(data)
-
-    def render(self, tpl, data=None, ctx=False):
-        if data is not None:
-            self.assign(data)
-        if ctx:
-            self.assign({'ctx':web.ctx})
-        return self._lookup.get_template(tpl).render(self._data)
-
-"""
-    def __getattr__(self, name):
-        # Assuming all templates end with .html
-        path = name + '.html'
-        t = self._lookup.get_template(path)
-        return t.render
-"""
-
-"""
-
-    def _initial_renderer(self):
-        self._render=render_jinja(self.tpl)
-
-    def render(self, name, data={}):
-        data.update({"ctx":web.ctx})
-        return self._render.__getattr__(name)(data)
-
-"""
 
 class Base(webapp2.RequestHandler):
     _method = ''
@@ -139,8 +80,6 @@ class Base(webapp2.RequestHandler):
         else:
             _max = len(spec[0]) - 1
 
-        #return str(len(args)) + "@" + str(_min) + "#" + str(_max)
-     
         if len(args) < _min or len(args) > _max:
             return self.response.set_status(400)
 
@@ -154,13 +93,6 @@ class Base(webapp2.RequestHandler):
 
         self.response.write(output)
 
-        #from types import StringType
-        #if type(output) is StringType:
-        #    output = output.encode('utf-8')
-
-        #return self._html + str(output)
-
-        
         # profiler
         """
         profiler=web.input(profiler='').profiler
@@ -187,11 +119,10 @@ class Base(webapp2.RequestHandler):
 
     def echo(self, text):
         self.response.write(text)
-        #self._html += str(text)
 
-    def render(self, name, data={}):
-        data.update({"ctx":web.ctx})
-        return self._render.__getattr__(name)(data)
+    #def render(self, name, data={}):
+    #    data.update({"ctx":web.ctx})
+    #    return self._render.__getattr__(name)(data)
 
     def _pili_get_target(self, func, func_list):
         if func == '_all':
@@ -225,10 +156,11 @@ class Base(webapp2.RequestHandler):
                 break
         return args
 
-def simplerun(prefix_url, handler):
-    app = webapp2.WSGIApplication([
-        (r"%s/%s" % (prefix_url, "([^/]+)?/?"*10), handler)
-        #webapp2.Route(r"%s/(.*)" % prefix_url, handler=handler, handler_method='_request'),
-        ])
+route = webapp2.Route
+
+create_app = webapp2.WSGIApplication
+
+def pilirun(prefix_url, handler):
+    app = create_app([(r"%s/%s" % (prefix_url, "([^/]+)?/?"*10), handler)])
     app.run()
     
