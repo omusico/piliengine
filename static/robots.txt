@@ -1,1 +1,3 @@
 # this is robots.txt
+#User-agent: *
+
