@@ -10,17 +10,17 @@ from Cookie import SimpleCookie
 # instance
 _liter = None
 
-def init(g):
-    _liter.init(g)
+def init(g, refresh=None):
+    _liter.init(g, refresh)
 
 class Lite:
     request = None
     def __init__(self):
         pass
 
-    def init(self, g, refresh = True):
+    def init(self, g, refresh = None):
 
-        if refresh or g.get('__name__') == '__main__':
+        if refresh is True or refresh is None and g.get('__name__') == '__main__':
             self._init_vars()
 
         g2 = globals()
