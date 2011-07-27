@@ -11,9 +11,12 @@ from pili import base
 #        self.response.write(handler_method)
 
 class WebApp(base.Base):
+    def _init(self):
+        pass
+
     def _index(self):
-        self.echo('yo')
-        self.response.write('hihi')
+        pass
+
     def a(self):
         self.echo('hihih')
 

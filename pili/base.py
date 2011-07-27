@@ -6,6 +6,7 @@ import inspect
 from pili.ext import webapp2
 
 class Base(webapp2.RequestHandler):
+
     _method = ''
     
     def __init__(self, request, response):
