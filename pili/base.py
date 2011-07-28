@@ -16,8 +16,8 @@ class Base(webapp2.RequestHandler):
     def _init(self):
         pass
 
-    def create_renderer(self, tpl_path=None):
-        return create_jinja(tpl_path)
+#    def create_renderer(self, tpl_path=None):
+#        return create_jinja(tpl_path)
 
     """
     def _add_filter

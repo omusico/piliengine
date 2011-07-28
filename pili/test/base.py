@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from pili import base
+from pili import jinja2
+import os
 #from pili.ext import webapp2
 
 #class webapp(webapp2.RequestHandler):
@@ -12,21 +14,16 @@ from pili import base
 
 class WebApp(base.Base):
     def _init(self):
+        self.tpl = jinja2.create_jinja("../../tpls")
         pass
 
     def _index(self):
+        self.tpl.assign({"data":"yoyo"})
+        self.echo(self.tpl.render("index.html"))
         pass
 
     def a(self):
         self.echo('hihih')
-
-"""
-app = webapp2.WSGIApplication([
-    webapp2.Route(r"%s/<:(\w+)>/?" % prefix, webapp, handler_method='_request'),
-    #webapp2.Route(r"/_pili/test/base/", webapp, name="name", handler_method="_all"),
-    webapp2.Route(r"%s.*" % prefix, webapp, name="all", handler_method="_all"),
-    ])
-"""
 
 def main():
     base.pilirun('/_pili/test/base', WebApp)

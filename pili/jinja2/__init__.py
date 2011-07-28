@@ -1,14 +1,15 @@
-from pili.ext import jinja2
-from pili.ext.jinja2 import Environment,FileSystemLoader
-from pili.ext.jinja2.python_loader import PythonLoader
-from pili.ext.jinja2 import jinjafilter
+from jinja2 import Environment,FileSystemLoader
+from python_loader import PythonLoader
+import jinjafilter
 
+from google.appengine.api import memcache
+
+"""
+tpl = jinja2.create_jinja("../../tpls")
+tpl.assign({"name":"pili engine"})
+self.response.write(tpl.render("index.html"))
+"""
 class create_jinja:
-    """Rendering interface to Jinja2 Templates
-    Example:
-        render= render_jinja('templates')
-        render.hello(name='jinja2')
-    """
 
     def __init__(self, *a, **kwargs):
         self._data = {}
@@ -24,15 +25,25 @@ class create_jinja:
         #self._render._lookup.bytecode_cache = MemcachedBytecodeCache(memcache, self.config.CACHE_KEY_PREFIX)
 
         #add useful filters
-        self._lookup.filters.update({'urlencode':jinjafilter.urlencode})
+        self._lookup.filters.update({'urlencode':jinjafilter.__dict__['urlencode']})
 
+    # add filter/modifier
+    # tpl.add_filter({'urlencode':urlencode_func})
     def add_filter(filters):
         self._lookup.filters.update(filters)
 
-    def assign(self, data):
-        self._data.update(data)
+    # tpl.assign({"name":"pili"})
+    # tpl.assign("name", "pili")
+    def assign(self, *args):
+        if len(args) == 1:
+            self._data.update(data)
+        elif len(args) == 2:
+            self._data[args[0]] = args[1]
 
-    def render(self, tpl, data=None):
+    # once cache_time set, cache will be enable
+    # template directory and template file construct a cache key by default
+    # you appened extra cache_key to determine different data
+    def render(self, tpl, data=None, cache_time=None, cache_key=None):
         if data is not None:
             self.assign(data)
         return self._lookup.get_template(tpl).render(self._data)

@@ -4,7 +4,7 @@ import time
 
 class MainPage(webapp.RequestHandler):
     def get(self,a='default'):
-        #self.response.headers['Content-Type'] = 'text/plain'
+        self.response.headers['Content-Type'] = 'text/html; charset=utf-8'
         self.response.out.write('Hello, webapp World!'+str(time.time()))
 
 application = webapp.WSGIApplication([('/webapp/(.*)/?$', MainPage)], debug=True)

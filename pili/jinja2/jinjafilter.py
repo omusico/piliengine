@@ -1,4 +1,4 @@
-from pili.ext.jinja2 import environmentfilter, Markup, escape, evalcontextfilter
+from jinja2 import environmentfilter, Markup, escape, evalcontextfilter
 
 """
 @evalcontextfilter

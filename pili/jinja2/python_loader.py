@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from pili.ext.jinja2.loaders import FileSystemLoader
+from jinja2.loaders import FileSystemLoader
 from google.appengine.api import memcache
 import os
 import hashlib
