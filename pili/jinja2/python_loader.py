@@ -66,13 +66,7 @@ class PythonLoader(FileSystemLoader):
                 source, filename, uptodate = self.get_source(environment, name)
                 template = file(filename).read().decode('utf-8') #.decode('ascii').decode('utf-8')
                 template = tpl_min(template)
-                #print ""
-                #print template.encode('utf-8')
-                #exit(0)
                 code = environment.compile(template, raw=True)
-                #print "*" * 50
-                #print code
-                #exit(0)
                 memcache.set(prefix+name, code)
                 if debug:
                     logging.info(prefix+name)
