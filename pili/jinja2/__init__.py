@@ -3,6 +3,17 @@ from python_loader import PythonLoader
 import jinjafilter
 
 from google.appengine.api import memcache
+import os
+from types import DictType
+import hashlib
+import logging
+
+try:
+    _cache
+except NameError:
+    #logging.error("damn")
+    _cache = {}
+
 
 """
 tpl = jinja2.create_jinja("../../tpls")
@@ -11,8 +22,12 @@ self.response.write(tpl.render("index.html"))
 """
 class create_jinja:
 
+    cache_time = 86400
+
     def __init__(self, *a, **kwargs):
-        self._data = {}
+        self.clear_all_assign()
+        self.cache_time = 86400
+        self._cache_key_prefix = os.path.dirname(__file__) + "::" + str(a)
         extensions = kwargs.pop('extensions', [])
         globals = kwargs.pop('globals', {})
 
@@ -32,19 +47,70 @@ class create_jinja:
     def add_filter(filters):
         self._lookup.filters.update(filters)
 
+    def clear_all_assign(self):
+        self._data = {}
+
     # tpl.assign({"name":"pili"})
     # tpl.assign("name", "pili")
     def assign(self, *args):
         if len(args) == 1:
-            self._data.update(data)
+            self._data.update(args[0])
         elif len(args) == 2:
             self._data[args[0]] = args[1]
+
+    # cache cached from memcache
+    # since memcache is not able to check cached or not
+    # this function is going to get the result from memcache
+    # it cached the result in memory and then make render() to get result faster
+    def is_cached(self, tpl, cache_key=''):
+        key = cache_key + tpl
+        rst = memcache.get(key, self._cache_key_prefix)
+        if rst is None:
+            return False
+        else:
+            # cache the result into memory first
+            key = hashlib.md5(key + self._cache_key_prefix).hexdigest()
+            _cache = {}
+            _cache[key] = rst
+            return True
 
     # once cache_time set, cache will be enable
     # template directory and template file construct a cache key by default
     # you appened extra cache_key to determine different data
-    def render(self, tpl, data=None, cache_time=None, cache_key=None):
+    # parameter could be (tpl, data) or (tpl, cache_key='', cache_time =86400)
+    # note: data param cannot be passed if you want to use cache
+    def render(self, tpl, *args, **kwargs): #data=None, cache_time=None, cache_key=''):
+
+        # data param
+        data = None
+        if len(args) == 1 and type(args[0]) is DictType:
+            data = args[0]
+        elif 'data' in kwargs:
+            data = kwargs.pop('data')
+
         if data is not None:
-            self.assign(data)
-        return self._lookup.get_template(tpl).render(self._data)
+            self.assign(kwargs.pop('data'))
+            return self._lookup.get_template(tpl).render(self._data)
+
+        # cache params
+        if data is None:
+            if len(args)>=1:
+                if len(args) == 1:
+                    cache_key = args[0]
+                    cache_time = self.cache_time
+                elif len(args) == 2:
+                    cache_key, cache_time = args
+            elif len(kwargs)>=1:
+                cache_key = kwargs.get('cache_key', '')
+                cache_time = kwargs.get('cache_time', self.cache_time)
+            key = cache_key + tpl
+            key2 = hashlib.md5(key + self._cache_key_prefix).hexdigest()
+            if key2 in _cache:
+                rst = _cache[key2]
+            else:
+                rst = memcache.get(key, self._cache_key_prefix)
+            if rst is None:
+                rst = self._lookup.get_template(tpl).render(self._data)
+                memcache.set(key, rst, time = cache_time, namespace = self._cache_key_prefix)
+            return rst
 

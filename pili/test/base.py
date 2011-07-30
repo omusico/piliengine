@@ -3,6 +3,8 @@
 from pili import base
 from pili import jinja2
 import os
+import time
+import logging
 #from pili.ext import webapp2
 
 #class webapp(webapp2.RequestHandler):
@@ -24,6 +26,16 @@ class WebApp(base.Base):
 
     def a(self):
         self.echo('hihih')
+
+    def cache(self):
+        if self.tpl.is_cached('index.html') is False:
+            self.tpl.assign('data', str(time.time()))
+        self.echo(self.tpl.render('index.html', '', 5))
+    
+    def cache2(self):
+        if self.tpl.is_cached('index.html') is False:
+            self.tpl.assign({'data':str(time.time())})
+        self.echo(self.tpl.render('index.html', cache_time=5))
 
 def main():
     base.pilirun('/_pili/test/base', WebApp)
