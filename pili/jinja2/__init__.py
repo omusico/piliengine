@@ -9,16 +9,16 @@ import hashlib
 import logging
 
 try:
-    _cache
+    _pre_cache
 except NameError:
-    #logging.error("damn")
-    _cache = {}
-
+    _pre_cache = dict()
 
 """
 tpl = jinja2.create_jinja("../../tpls")
 tpl.assign({"name":"pili engine"})
 self.response.write(tpl.render("index.html"))
+
+default cache_time is 1 day
 """
 class create_jinja:
 
@@ -27,6 +27,9 @@ class create_jinja:
     def __init__(self, *a, **kwargs):
         self.clear_all_assign()
         self.cache_time = 86400
+
+        # add current file path in to prefix key, 
+        #it's able to include each updates for Google App Engine
         self._cache_key_prefix = os.path.dirname(__file__) + "::" + str(a)
         extensions = kwargs.pop('extensions', [])
         globals = kwargs.pop('globals', {})
@@ -69,9 +72,9 @@ class create_jinja:
             return False
         else:
             # cache the result into memory first
-            key = hashlib.md5(key + self._cache_key_prefix).hexdigest()
-            _cache = {}
-            _cache[key] = rst
+            key2 = hashlib.md5(key + self._cache_key_prefix).hexdigest()
+            _pre_cache = dict()
+            _pre_cache[key2] = rst
             return True
 
     # once cache_time set, cache will be enable
@@ -92,25 +95,32 @@ class create_jinja:
             self.assign(kwargs.pop('data'))
             return self._lookup.get_template(tpl).render(self._data)
 
-        # cache params
+        # only have cache params
         if data is None:
+            cache = False
             if len(args)>=1:
+                cache = True
                 if len(args) == 1:
                     cache_key = args[0]
                     cache_time = self.cache_time
                 elif len(args) == 2:
                     cache_key, cache_time = args
             elif len(kwargs)>=1:
+                cache = True
                 cache_key = kwargs.get('cache_key', '')
                 cache_time = kwargs.get('cache_time', self.cache_time)
+
+        if cache:
             key = cache_key + tpl
             key2 = hashlib.md5(key + self._cache_key_prefix).hexdigest()
-            if key2 in _cache:
-                rst = _cache[key2]
+            if key2 in _pre_cache:
+                rst = _pre_cache[key2]
             else:
                 rst = memcache.get(key, self._cache_key_prefix)
             if rst is None:
                 rst = self._lookup.get_template(tpl).render(self._data)
                 memcache.set(key, rst, time = cache_time, namespace = self._cache_key_prefix)
             return rst
+        else:
+            return self._lookup.get_template(tpl).render(self._data)
 

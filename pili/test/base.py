@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-
 from pili import base
 from pili import jinja2
 import os
 import time
-import logging
 #from pili.ext import webapp2
 
 #class webapp(webapp2.RequestHandler):
@@ -25,7 +23,7 @@ class WebApp(base.Base):
         pass
 
     def a(self):
-        self.echo('hihih')
+        self.echo('this is a')
 
     def cache(self):
         if self.tpl.is_cached('index.html') is False:
