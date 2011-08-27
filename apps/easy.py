@@ -3,7 +3,7 @@ import time
 
 def main():
     lite.init(globals())
-    echo("Hello, webapp World!"+str(time.time()))
+    echo("111=="+str(time.time()))
     #exit(0)
 
 if __name__ == "__main__": 
