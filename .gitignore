@@ -3,3 +3,5 @@
 trash/*
 pili/ext/webapp2/*
 jinja2/*
+pystache/*
+tpls/*
