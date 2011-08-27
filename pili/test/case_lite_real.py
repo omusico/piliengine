@@ -4,14 +4,6 @@ from pili import lite
 def main():
     lite.init(globals())
 
-    #setcookie("a", "你好", max_age=3)
-    #setcookie("b", "你好")
-
-    #echo(_ENV['HTTP_COOKIE'])
-
-    #print _FILE['somename'].file.read()
-    #return
-    
     if _ENV['QUERY_STRING'] == '':
         return testEcho()
 
