@@ -13,7 +13,7 @@ class WebApp(base.Base):
     def _index(self):
         self.response.write('this is index')
 
-    def test(self,args*):
+    def test(self,*args):
         self.response.write('this is test')
 
     # conflict name
