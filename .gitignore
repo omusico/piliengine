@@ -1,6 +1,7 @@
 *.pyc
 *.swp
 trash/*
+pili/
 pili/ext/webapp2/*
 jinja2/*
 pystache/*
